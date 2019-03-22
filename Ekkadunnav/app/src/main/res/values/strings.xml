@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Ekkadunnav</string>
+    <string name="title_activity_sign_up">SignUp</string>
+    <string name="title_activity_map_navigation">MapNavigationActivity</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Nemnous</string>
+    <string name="nav_header_subtitle">nemnous@gmail.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_the_nav_bar">theNavBar</string>
+</resources>
