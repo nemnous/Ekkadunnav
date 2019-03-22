@@ -74,15 +74,15 @@ public class theNavBar extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -116,12 +116,9 @@ public class theNavBar extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
+        // super.onBackPressed(); commented this line in order to disable back press
+        //Write your code here
+//        Toast.makeText(getApplicationContext(), "Back press disabled!", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -157,7 +154,15 @@ public class theNavBar extends AppCompatActivity
 
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
-
+    public void signOut(View v) {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user != null) {
+            auth.signOut();
+            finish();
+            Intent intent = new Intent(theNavBar.this, MainActivity.class);
+            startActivity(intent);
+        }
+    }
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -182,9 +187,15 @@ public class theNavBar extends AppCompatActivity
             Intent intent = new Intent(this, joinGang.class);
             startActivity(intent);
         }
-// else if (id == R.id.nav_send) {
-//
-//        }
+ else if (id == R.id.nav_invite) {
+            Intent intent = new Intent(this,InviteCodeActivity.class );
+            startActivity(intent);
+        } else if(id == R.id.nav_myGang) {
+            Intent intent = new Intent(getApplicationContext(), MyGangActivity.class);
+            startActivity(intent);
+        } else if(id == R.id.nav_send) {
+            Toast.makeText(this, "Reach us at nemnous@gmail.com", Toast.LENGTH_SHORT).show();
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -197,7 +208,7 @@ public class theNavBar extends AppCompatActivity
         request = new LocationRequest().create();
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         //requests for every 3 seconds
-        request.setInterval(10000);
+        request.setInterval(100000);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -222,7 +233,7 @@ public class theNavBar extends AppCompatActivity
 
     @Override
     public void onConnectionSuspended(int i) {
-
+        Toast.makeText(getApplicationContext(), "Connection Suspended", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -259,7 +270,7 @@ public class theNavBar extends AppCompatActivity
 
                                                     option.position(latlongLocation);
                                                     option.title(allUserSnap.child("name").getValue().toString());
-                                                    mMap.addMarker(option);
+                                                    mMap.addMarker(option).showInfoWindow();
 //                                                    Double latti = Double.parseDouble(rootRef.child("Users").child(userId).child("myCircle").child(userId).child("Lat").ge);
                                                     Log.d("Latti", allUserSnap.child("name").getValue().toString() + " lat " + allUserSnap.child("lat").getValue().toString() + "long " + allUserSnap.child("lon").getValue().toString());
                                                 }
@@ -283,6 +294,7 @@ public class theNavBar extends AppCompatActivity
             });
 
             latLngLocation = new LatLng(location.getLatitude(), location.getLongitude());
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLngLocation, 20.0f));
 //            MarkerOptions option = new MarkerOptions();
 //            option.position(latLngLocation);
 //            option.title("Current Location");
@@ -298,7 +310,8 @@ public class theNavBar extends AppCompatActivity
 
 //
 //            mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLngLocation));
+
+//            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLngLocation), 12.0f);
 
 
         }

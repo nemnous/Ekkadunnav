@@ -1,5 +1,6 @@
 package com.nemnous.ekkadunnav;
 
+import android.content.Intent;
 import android.nfc.Tag;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -82,6 +83,8 @@ public class joinGang extends AppCompatActivity {
                         }
                         // do something with the individual "issues"
                     }
+                    Intent intent = new Intent(getApplicationContext(), theNavBar.class);
+                    startActivity(intent);
                 } else {
                     Toast.makeText(getApplicationContext(), "Please verify Code", Toast.LENGTH_SHORT).show();
                 }
