@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -39,6 +40,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 public class theNavBar extends AppCompatActivity
@@ -56,6 +58,7 @@ public class theNavBar extends AppCompatActivity
     String userEmail;
     TextView nameTxt;
     TextView emailTxt;
+    String userId;
 
 
 
@@ -92,7 +95,7 @@ public class theNavBar extends AppCompatActivity
         View header = navigationView.getHeaderView(0);
         nameTxt = header.findViewById(R.id.HeaderNameId);
         emailTxt = header.findViewById(R.id.HeaderEmailId);
-
+        userId = user.getUid();
 
         reference = FirebaseDatabase.getInstance().getReference().child("Users");
         reference.addValueEventListener(new ValueEventListener() {
@@ -194,7 +197,7 @@ public class theNavBar extends AppCompatActivity
         request = new LocationRequest().create();
         request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         //requests for every 3 seconds
-        request.setInterval(1000);
+        request.setInterval(10000);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -224,18 +227,79 @@ public class theNavBar extends AppCompatActivity
 
     @Override
     public void onLocationChanged(Location location) {
+
         if(location == null) {
             Toast.makeText(getApplicationContext(), "Something wrong retrieving location", Toast.LENGTH_SHORT).show();
         } else {
+            final MarkerOptions option = new MarkerOptions();
+            final DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+
+            Query query = rootRef.child("Users").child(userId).child("myCircle").orderByValue();
+            query.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.exists()) {
+
+                        for(final DataSnapshot circleData: dataSnapshot.getChildren()) {
+
+                            Log.d("TAG", circleData.toString());
+                            Query Userquery = rootRef.child("Users");
+                            mMap.clear();
+                                Userquery.addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnap) {
+                                        if(dataSnap.exists()) {
+                                            for(DataSnapshot allUserSnap : dataSnap.getChildren()) {
+                                                Log.d("All Users", allUserSnap.toString());
+                                                if (circleData.getKey().equals(allUserSnap.getKey())) {
+
+                                                    Double  latitude = Double.parseDouble(allUserSnap.child("lat").getValue().toString());
+                                                    Double longitude = Double.parseDouble(allUserSnap.child("lon").getValue().toString());
+                                                    LatLng latlongLocation = new LatLng(latitude, longitude);
+
+                                                    option.position(latlongLocation);
+                                                    option.title(allUserSnap.child("name").getValue().toString());
+                                                    mMap.addMarker(option);
+//                                                    Double latti = Double.parseDouble(rootRef.child("Users").child(userId).child("myCircle").child(userId).child("Lat").ge);
+                                                    Log.d("Latti", allUserSnap.child("name").getValue().toString() + " lat " + allUserSnap.child("lat").getValue().toString() + "long " + allUserSnap.child("lon").getValue().toString());
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
             latLngLocation = new LatLng(location.getLatitude(), location.getLongitude());
-            MarkerOptions option = new MarkerOptions();
-            option.position(latLngLocation);
-            option.title("Current Location");
-            mMap.clear();
-            mMap.addMarker(option);
-            LatLng sydney = new LatLng(-34, 151);
-            mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+//            MarkerOptions option = new MarkerOptions();
+//            option.position(latLngLocation);
+//            option.title("Current Location");
+////            mMap.clear();
+//            mMap.addMarker(option);
+//            LatLng sydney = new LatLng(-34, 151);
+
+
+            rootRef.child("Users").child(userId).child("lat").setValue(latLngLocation.latitude);
+            rootRef.child("Users").child(userId).child("lon").setValue(latLngLocation.longitude);
+            rootRef.child("Users").child(userId).child("myCircle").child(userId).child("Lat").setValue(latLngLocation.latitude);
+            rootRef.child("Users").child(userId).child("myCircle").child(userId).child("Lon").setValue(latLngLocation.longitude);
+
+//
+//            mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLngLocation));
+
 
         }
     }

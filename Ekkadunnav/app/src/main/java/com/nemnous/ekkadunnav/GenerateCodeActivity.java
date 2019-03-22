@@ -63,18 +63,7 @@ public class GenerateCodeActivity extends AppCompatActivity {
 
 //        Toast.makeText(getApplicationContext(), user.getUid(), Toast.LENGTH_LONG).show();
         CreateUser createUser = new CreateUser(userId, this.Name, this.Email, this.Password,randomNumber,"NA","NA","NA","NA",  this.myCircle);
-//        reference.child(userId).setValue(createUser).addOnCompleteListener(new OnCompleteListener<Void>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<Void> task) {
-//                        dialog.dismiss();
-//                        if(task.isSuccessful()) {
-//                            Toast.makeText(getApplicationContext(), "Updated", Toast.LENGTH_LONG).show();
-//                        } else {
-//                            Toast.makeText(getApplicationContext(), "Failed to add details", Toast.LENGTH_LONG).show();
-//                        }
-//
-//                    }
-//                });
+
         reference.child(userId).setValue(createUser, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
